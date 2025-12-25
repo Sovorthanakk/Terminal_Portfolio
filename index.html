@@ -1,0 +1,1013 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MindOS Portfolio Demo</title>
+  <style>
+    :root{
+      --bg:#05070c;
+      --panel:rgba(255,255,255,.06);
+      --panel2:rgba(255,255,255,.08);
+      --border:rgba(255,255,255,.12);
+      --text:#e8eefc;
+      --muted:#a5b4d7;
+      --accent:#7c5cff;
+      --accent2:#2ee9a6;
+      --danger:#ff4d6d;
+      --shadow: 0 20px 60px rgba(0,0,0,.55);
+      --radius:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:
+        radial-gradient(1000px 700px at 10% 10%, rgba(124,92,255,.22), transparent 60%),
+        radial-gradient(900px 650px at 90% 20%, rgba(46,233,166,.14), transparent 60%),
+        radial-gradient(900px 650px at 50% 90%, rgba(255,77,109,.10), transparent 60%),
+        var(--bg);
+      color:var(--text);
+      font-family:var(--sans);
+      overflow:hidden;
+    }
+
+    /* Boot overlay */
+    .boot{
+      position:fixed; inset:0;
+      background:linear-gradient(180deg, rgba(5,7,12,.96), rgba(5,7,12,.92));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+    .boot-card{
+      width:min(780px, 92vw);
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:22px 22px 16px;
+      backdrop-filter: blur(10px);
+    }
+    .boot-top{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:14px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-family:var(--mono);
+      letter-spacing:.3px;
+    }
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--accent2); box-shadow:0 0 18px rgba(46,233,166,.45);}
+    .boot-sub{color:var(--muted); font-size:13px}
+    .boot-console{
+      font-family:var(--mono);
+      font-size:13px;
+      line-height:1.55;
+      padding:14px;
+      border-radius:16px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.35);
+      min-height:210px;
+      white-space:pre-wrap;
+      overflow:auto;
+    }
+    .boot-actions{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-top:14px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 14px;
+      border-radius:14px;
+      font-weight:600;
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.22); background:rgba(255,255,255,.09);}
+    .btn.primary{
+      border-color: rgba(124,92,255,.55);
+      background: linear-gradient(180deg, rgba(124,92,255,.38), rgba(124,92,255,.18));
+      box-shadow: 0 16px 40px rgba(124,92,255,.18);
+    }
+    .kbd{
+      font-family:var(--mono);
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      padding:2px 8px;
+      border-radius:10px;
+      color:var(--text);
+    }
+
+    /* Desktop */
+    .desktop{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+    }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 14px;
+      border-bottom:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      backdrop-filter: blur(10px);
+    }
+    .leftbar{
+      display:flex; align-items:center; gap:10px;
+    }
+    .chip{
+      display:flex; align-items:center; gap:10px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .status{
+      display:flex; align-items:center; gap:10px;
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .pulse{
+      width:9px;height:9px;border-radius:999px;background:var(--accent2);
+      box-shadow:0 0 14px rgba(46,233,166,.55);
+      animation:pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1); opacity:.9}
+      50%{transform:scale(1.45); opacity:.55}
+    }
+
+    .workspace{
+      position:relative;
+      flex:1;
+      padding:16px;
+      overflow:hidden;
+    }
+
+    /* Dock */
+    .dock{
+      position:absolute;
+      left:50%;
+      bottom:16px;
+      transform:translateX(-50%);
+      display:flex;
+      gap:10px;
+      padding:10px;
+      border-radius:20px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      backdrop-filter: blur(12px);
+      box-shadow: var(--shadow);
+    }
+    .dock button{
+      width:44px; height:44px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      cursor:pointer;
+      transition:.18s ease;
+      display:grid; place-items:center;
+      font-size:18px;
+    }
+    .dock button:hover{
+      transform:translateY(-4px) scale(1.05);
+      border-color:rgba(255,255,255,.22);
+      background:rgba(255,255,255,.09);
+    }
+    .dock button.active{
+      border-color: rgba(124,92,255,.65);
+      box-shadow: 0 12px 36px rgba(124,92,255,.20);
+    }
+
+    /* Window */
+    .window{
+      position:absolute;
+      width:min(680px, 92vw);
+      height:min(420px, 70vh);
+      border-radius: var(--radius);
+      border:1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      backdrop-filter: blur(14px);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transform: translate3d(0,0,0);
+    }
+    .window.hidden{display:none;}
+    .titlebar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:10px 12px;
+      background: rgba(255,255,255,.04);
+      border-bottom:1px solid var(--border);
+      user-select:none;
+      cursor:grab;
+    }
+    .titlebar:active{cursor:grabbing;}
+    .traffic{
+      display:flex; align-items:center; gap:8px;
+    }
+    .tbtn{
+      width:12px; height:12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(255,255,255,.08);
+    }
+    .tbtn.close{background:rgba(255,77,109,.35); border-color: rgba(255,77,109,.55);}
+    .tbtn.min{background:rgba(255,205,77,.25); border-color: rgba(255,205,77,.45);}
+    .tbtn.max{background:rgba(46,233,166,.22); border-color: rgba(46,233,166,.40);}
+    .title{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      display:flex; align-items:center; gap:10px;
+    }
+    .win-actions{
+      display:flex; align-items:center; gap:8px;
+    }
+    .iconbtn{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      padding:7px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:12px;
+      transition:.15s ease;
+    }
+    .iconbtn:hover{transform:translateY(-1px); border-color:rgba(255,255,255,.22);}
+    .content{
+      padding:14px;
+      height:calc(100% - 48px);
+      overflow:auto;
+    }
+
+    /* Terminal */
+    .term{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      font-family:var(--mono);
+    }
+    .term .screen{
+      flex:1;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.35);
+      padding:12px;
+      overflow:auto;
+      white-space:pre-wrap;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .term .prompt{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.04);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .term label{
+      color:var(--muted);
+      font-size:12px;
+    }
+    .term input{
+      flex:1;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:var(--text);
+      font-family:var(--mono);
+      font-size:13px;
+    }
+    .hint{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+    }
+    .card{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px;
+    }
+    .card h3{margin:0 0 8px; font-size:14px}
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.04);
+      margin:4px 6px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .tag b{color:var(--text); font-weight:700}
+    .proj{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .proj-item{
+      border:1px solid var(--border);
+      background:rgba(255,255,255,.03);
+      border-radius:16px;
+      padding:12px;
+    }
+    .proj-item .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .proj-item h4{margin:0; font-size:14px}
+    .pill{
+      font-family:var(--mono);
+      font-size:11px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid rgba(124,92,255,.45);
+      background:rgba(124,92,255,.14);
+      color:var(--text);
+    }
+    .muted{color:var(--muted)}
+    .small{font-size:12px}
+    .divider{
+      height:1px;
+      background:rgba(255,255,255,.10);
+      margin:10px 0;
+    }
+
+    /* Tiny toast */
+    .toast{
+      position:fixed;
+      right:14px;
+      bottom:80px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:rgba(0,0,0,.35);
+      backdrop-filter: blur(10px);
+      color:var(--text);
+      font-size:12px;
+      font-family:var(--mono);
+      box-shadow:var(--shadow);
+      opacity:0;
+      transform:translateY(8px);
+      transition:.25s ease;
+      pointer-events:none;
+      z-index:9998;
+    }
+    .toast.show{opacity:1; transform:translateY(0);}
+    a{color:var(--accent2)}
+  </style>
+</head>
+<body>
+
+  <!-- BOOT OVERLAY -->
+  <div class="boot" id="boot">
+    <div class="boot-card">
+      <div class="boot-top">
+        <div>
+          <div class="brand"><span class="dot"></span> <span>MIND_OS</span></div>
+          <div class="boot-sub">Interactive portfolio demo • OS-style UI • Terminal commands</div>
+        </div>
+        <button class="btn primary" id="bootBtn">BOOT</button>
+      </div>
+
+      <div class="boot-console" id="bootConsole"></div>
+
+      <div class="boot-actions">
+        <div>Tip: press <span class="kbd">Enter</span> to boot • try commands later: <span class="kbd">help</span>, <span class="kbd">projects</span>, <span class="kbd">about</span></div>
+        <button class="btn" id="skipBtn" title="Skip animation">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="desktop" id="desktop" aria-hidden="true">
+    <div class="topbar">
+      <div class="leftbar">
+        <div class="chip">
+          <span style="font-size:14px;">🧠</span>
+          <span><b style="color:var(--text)">MindOS</b> / fastonecambodia</span>
+        </div>
+        <div class="chip">
+          <span class="pulse"></span>
+          <span>System: Online</span>
+        </div>
+      </div>
+      <div class="status" id="status">
+        <span id="clock">--:--:--</span>
+        <span>•</span>
+        <span>Uptime: <span id="uptime">0s</span></span>
+      </div>
+    </div>
+
+    <div class="workspace" id="workspace">
+      <!-- WINDOWS -->
+      <div class="window" id="winTerminal" style="left: 34px; top: 22px;">
+        <div class="titlebar" data-drag="winTerminal">
+          <div class="traffic">
+            <span class="tbtn close" title="Close" data-close="winTerminal"></span>
+            <span class="tbtn min" title="Minimize" data-min="winTerminal"></span>
+            <span class="tbtn max" title="Maximize" data-max="winTerminal"></span>
+          </div>
+          <div class="title">terminal.app — run commands</div>
+          <div class="win-actions">
+            <button class="iconbtn" data-action="copyLast">Copy last output</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="term">
+            <div class="screen" id="termScreen"></div>
+            <div>
+              <div class="prompt">
+                <label>mindOS$</label>
+                <input id="termInput" autocomplete="off" spellcheck="false" placeholder="Type 'help' then press Enter..." />
+              </div>
+              <div class="hint">Commands: <span class="kbd">help</span> <span class="kbd">projects</span> <span class="kbd">about</span> <span class="kbd">skills</span> <span class="kbd">open projects</span> <span class="kbd">open memory</span> <span class="kbd">clear</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="window" id="winProjects" style="left: 210px; top: 96px; width:min(720px, 92vw); height:min(460px, 74vh);">
+        <div class="titlebar" data-drag="winProjects">
+          <div class="traffic">
+            <span class="tbtn close" title="Close" data-close="winProjects"></span>
+            <span class="tbtn min" title="Minimize" data-min="winProjects"></span>
+            <span class="tbtn max" title="Maximize" data-max="winProjects"></span>
+          </div>
+          <div class="title">lab.projects — experiments</div>
+          <div class="win-actions">
+            <button class="iconbtn" data-action="spawn">New experiment</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="proj" id="projList"></div>
+        </div>
+      </div>
+
+      <div class="window" id="winMemory" style="left: 140px; top: 160px; width:min(720px, 92vw); height:min(420px, 70vh); display:none;">
+        <div class="titlebar" data-drag="winMemory">
+          <div class="traffic">
+            <span class="tbtn close" title="Close" data-close="winMemory"></span>
+            <span class="tbtn min" title="Minimize" data-min="winMemory"></span>
+            <span class="tbtn max" title="Maximize" data-max="winMemory"></span>
+          </div>
+          <div class="title">memory.core — how I think</div>
+          <div class="win-actions">
+            <button class="iconbtn" data-action="shuffle">Shuffle nodes</button>
+          </div>
+        </div>
+        <div class="content">
+          <div class="grid">
+            <div class="card">
+              <h3>Mind Nodes</h3>
+              <div id="nodes"></div>
+              <div class="divider"></div>
+              <div class="muted small">Click a node → see the “why” behind your work.</div>
+            </div>
+            <div class="card">
+              <h3>Selected Node</h3>
+              <div id="nodeDetail" class="muted small">Pick a node from the left.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCK -->
+      <div class="dock" id="dock">
+        <button id="dockTerminal" class="active" title="Terminal">⌘</button>
+        <button id="dockProjects" class="active" title="Projects">🧪</button>
+        <button id="dockMemory" title="Memory Core">🧠</button>
+        <button id="dockHelp" title="Help">❓</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---------------------------
+    // Small helpers
+    // ---------------------------
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function toast(msg){
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._tm);
+      toast._tm = setTimeout(()=>t.classList.remove("show"), 1600);
+    }
+
+    function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
+
+    // ---------------------------
+    // Boot sequence
+    // ---------------------------
+    const bootLines = [
+      "FASTONE_OS v1.0",
+      "Initializing creativity engine... ✅",
+      "Loading logic modules... ✅",
+      "Mounting imagination volume... ✅",
+      "Spawning UI layer (Glass v2)... ✅",
+      "Checking projects cache... ✅",
+      "Connecting terminal... ✅",
+      "",
+      "Ready.",
+      "Press ENTER to continue."
+    ];
+
+    const boot = $("#boot");
+    const bootConsole = $("#bootConsole");
+    const desktop = $("#desktop");
+    let bootIndex = 0;
+    let bootDone = false;
+
+    function bootTick(){
+      if(bootDone) return;
+      if(bootIndex < bootLines.length){
+        bootConsole.textContent += (bootLines[bootIndex] + "\n");
+        bootConsole.scrollTop = bootConsole.scrollHeight;
+        bootIndex++;
+        setTimeout(bootTick, 140);
+      } else {
+        bootDone = true;
+      }
+    }
+
+    function finishBoot(){
+      boot.style.display = "none";
+      desktop.setAttribute("aria-hidden","false");
+      $("#termInput").focus();
+      toast("Welcome to MindOS. Try: help");
+      startUptime();
+    }
+
+    $("#bootBtn").addEventListener("click", ()=>{
+      bootConsole.textContent = "";
+      bootIndex = 0; bootDone = false;
+      bootTick();
+    });
+
+    $("#skipBtn").addEventListener("click", ()=>{
+      bootConsole.textContent = bootLines.join("\n") + "\n";
+      bootDone = true;
+      finishBoot();
+    });
+
+    window.addEventListener("keydown", (e)=>{
+      if(boot.style.display !== "none"){
+        if(e.key === "Enter"){
+          // if no lines yet, start; if already started, finish
+          if(bootConsole.textContent.trim().length === 0){
+            bootTick();
+          } else {
+            finishBoot();
+          }
+        }
+      }
+    });
+
+    // Auto boot animation once
+    bootTick();
+
+    // ---------------------------
+    // Clock + uptime
+    // ---------------------------
+    let startTime = null;
+    function startUptime(){
+      startTime = Date.now();
+      setInterval(()=>{
+        const d = new Date();
+        const hh = String(d.getHours()).padStart(2,"0");
+        const mm = String(d.getMinutes()).padStart(2,"0");
+        const ss = String(d.getSeconds()).padStart(2,"0");
+        $("#clock").textContent = `${hh}:${mm}:${ss}`;
+
+        const sec = Math.floor((Date.now() - startTime) / 1000);
+        $("#uptime").textContent = sec < 60 ? `${sec}s` :
+          sec < 3600 ? `${Math.floor(sec/60)}m ${sec%60}s` :
+          `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+      }, 250);
+    }
+
+    // ---------------------------
+    // Projects data
+    // ---------------------------
+    const projects = [
+      {
+        name: "Customer Dashboard OS",
+        tag: "DATA + UI",
+        problem: "Users couldn’t understand customer status at a glance.",
+        approach: "Designed a card+chart system + server-side filtering with export.",
+        outcome: "Faster decision making + cleaner reporting workflow."
+      },
+      {
+        name: "IP Pool Allocator",
+        tag: "NETWORK",
+        problem: "IP assignment had duplicates + messy selection UI.",
+        approach: "Pool-based allocation + hide in-use IPs + return on termination.",
+        outcome: "No duplicate IPs and cleaner provisioning."
+      },
+      {
+        name: "MEF Support Mini Flow",
+        tag: "PRODUCT",
+        problem: "Government support info felt hard to navigate.",
+        approach: "Storyboard-driven UX + step-by-step guided flows.",
+        outcome: "More trust + fewer steps to complete user tasks."
+      }
+    ];
+
+    function renderProjects(){
+      const wrap = $("#projList");
+      wrap.innerHTML = "";
+      projects.forEach((p, i)=>{
+        const el = document.createElement("div");
+        el.className = "proj-item";
+        el.innerHTML = `
+          <div class="row">
+            <h4>${p.name}</h4>
+            <span class="pill">${p.tag}</span>
+          </div>
+          <div class="divider"></div>
+          <div class="small"><b>❓ Problem:</b> <span class="muted">${p.problem}</span></div>
+          <div class="small" style="margin-top:6px;"><b>🧠 Approach:</b> <span class="muted">${p.approach}</span></div>
+          <div class="small" style="margin-top:6px;"><b>✅ Outcome:</b> <span class="muted">${p.outcome}</span></div>
+          <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="tag"><b>View</b> architecture</span>
+            <span class="tag"><b>Open</b> demo</span>
+            <span class="tag"><b>Read</b> decisions</span>
+          </div>
+        `;
+        el.addEventListener("click", ()=>{
+          toast(`Opened: ${p.name}`);
+          focusWindow("winProjects");
+        });
+        wrap.appendChild(el);
+      });
+    }
+    renderProjects();
+
+    // Memory nodes
+    let nodes = [
+      { title:"System Thinking", text:"I like building systems (not just pages). I connect UI + data + rules." },
+      { title:"Clean UX", text:"If a user needs 4 clicks, I try to make it 2—with clarity." },
+      { title:"Speed & Stability", text:"I prefer solutions that survive real-world traffic and messy inputs." },
+      { title:"Playful Creativity", text:"Small animations, terminal vibes, micro-interactions = memorable products." },
+      { title:"Learning Loop", text:"I ship → measure → refactor. Always improving." },
+    ];
+
+    function renderNodes(){
+      const box = $("#nodes");
+      box.innerHTML = "";
+      nodes.forEach((n, idx)=>{
+        const chip = document.createElement("button");
+        chip.className = "tag";
+        chip.style.cursor = "pointer";
+        chip.innerHTML = `🧩 <b>${n.title}</b>`;
+        chip.addEventListener("click", ()=>{
+          $("#nodeDetail").innerHTML = `
+            <div style="font-family:var(--mono); color:var(--text); font-size:13px; margin-bottom:6px;">${n.title}</div>
+            <div class="muted small">${n.text}</div>
+            <div class="divider"></div>
+            <div class="muted small">Idea: turn each node into a short story + screenshot + lesson learned.</div>
+          `;
+          toast(`Node: ${n.title}`);
+        });
+        box.appendChild(chip);
+      });
+    }
+    renderNodes();
+
+    // ---------------------------
+    // Window manager (focus + drag)
+    // ---------------------------
+    let z = 10;
+    const winIds = ["winTerminal","winProjects","winMemory"];
+
+    function focusWindow(id){
+      const w = document.getElementById(id);
+      if(!w || w.classList.contains("hidden") || w.style.display === "none") return;
+      z++;
+      w.style.zIndex = z;
+    }
+
+    winIds.forEach(id=>{
+      const w = document.getElementById(id);
+      w.addEventListener("mousedown", ()=>focusWindow(id));
+    });
+
+    // Dragging
+    let drag = null;
+    $$(".titlebar").forEach(tb=>{
+      tb.addEventListener("mousedown", (e)=>{
+        const id = tb.dataset.drag;
+        const w = document.getElementById(id);
+        focusWindow(id);
+        const rect = w.getBoundingClientRect();
+        drag = {
+          id,
+          startX: e.clientX,
+          startY: e.clientY,
+          origLeft: rect.left,
+          origTop: rect.top
+        };
+      });
+    });
+
+    window.addEventListener("mousemove", (e)=>{
+      if(!drag) return;
+      const w = document.getElementById(drag.id);
+      const ws = $("#workspace").getBoundingClientRect();
+      const dx = e.clientX - drag.startX;
+      const dy = e.clientY - drag.startY;
+
+      let left = drag.origLeft + dx - ws.left;
+      let top  = drag.origTop  + dy - ws.top;
+
+      left = clamp(left, 10, ws.width - w.offsetWidth - 10);
+      top  = clamp(top, 10, ws.height - w.offsetHeight - 10);
+
+      w.style.left = left + "px";
+      w.style.top = top + "px";
+    });
+
+    window.addEventListener("mouseup", ()=> drag = null);
+
+    // Close/min/max buttons
+    function hideWin(id){
+      const w = document.getElementById(id);
+      w.style.display = "none";
+      // dock active state
+      if(id === "winTerminal") $("#dockTerminal").classList.remove("active");
+      if(id === "winProjects") $("#dockProjects").classList.remove("active");
+      if(id === "winMemory") $("#dockMemory").classList.remove("active");
+    }
+    function showWin(id){
+      const w = document.getElementById(id);
+      w.style.display = "block";
+      focusWindow(id);
+      if(id === "winTerminal") $("#dockTerminal").classList.add("active");
+      if(id === "winProjects") $("#dockProjects").classList.add("active");
+      if(id === "winMemory") $("#dockMemory").classList.add("active");
+    }
+
+    $$("[data-close]").forEach(el=>{
+      el.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        hideWin(el.dataset.close);
+        toast("Window closed");
+      });
+    });
+    $$("[data-min]").forEach(el=>{
+      el.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        hideWin(el.dataset.min);
+        toast("Minimized");
+      });
+    });
+    $$("[data-max]").forEach(el=>{
+      el.addEventListener("click", (e)=>{
+        e.stopPropagation();
+        const id = el.dataset.max;
+        const w = document.getElementById(id);
+        const ws = $("#workspace").getBoundingClientRect();
+        const isMax = w.dataset.maxed === "1";
+        if(!isMax){
+          w.dataset.prev = JSON.stringify({left:w.style.left, top:w.style.top, width:w.style.width, height:w.style.height});
+          w.style.left = "10px";
+          w.style.top = "10px";
+          w.style.width = (ws.width - 20) + "px";
+          w.style.height = (ws.height - 90) + "px";
+          w.dataset.maxed = "1";
+          toast("Maximized");
+        } else {
+          const prev = JSON.parse(w.dataset.prev || "{}");
+          if(prev.left) w.style.left = prev.left;
+          if(prev.top) w.style.top = prev.top;
+          if(prev.width) w.style.width = prev.width;
+          if(prev.height) w.style.height = prev.height;
+          w.dataset.maxed = "0";
+          toast("Restored");
+        }
+        focusWindow(id);
+      });
+    });
+
+    // Dock
+    $("#dockTerminal").addEventListener("click", ()=>{
+      const w = $("#winTerminal");
+      if(w.style.display === "none") showWin("winTerminal"); else focusWindow("winTerminal");
+      $("#termInput").focus();
+    });
+    $("#dockProjects").addEventListener("click", ()=>{
+      const w = $("#winProjects");
+      if(w.style.display === "none") showWin("winProjects"); else focusWindow("winProjects");
+    });
+    $("#dockMemory").addEventListener("click", ()=>{
+      const w = $("#winMemory");
+      if(w.style.display === "none") showWin("winMemory"); else focusWindow("winMemory");
+    });
+    $("#dockHelp").addEventListener("click", ()=>{
+      toast("Try terminal commands: help, projects, open memory, clear");
+      showWin("winTerminal");
+      $("#termInput").focus();
+      termPrint("\n# Quick Help\n- help\n- projects\n- about\n- skills\n- open projects | open memory\n- clear\n");
+    });
+
+    // Titlebar action buttons
+    $$("[data-action='spawn']").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        projects.unshift({
+          name: "New Experiment " + Math.floor(Math.random()*900+100),
+          tag: "IDEA",
+          problem: "A fresh problem appears in the wild.",
+          approach: "You design a system, then refine it in iterations.",
+          outcome: "A clean solution that feels magical."
+        });
+        renderProjects();
+        toast("New experiment created");
+      });
+    });
+
+    $$("[data-action='shuffle']").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        nodes = nodes.sort(()=>Math.random()-0.5);
+        renderNodes();
+        toast("Nodes shuffled");
+      });
+    });
+
+    $$("[data-action='copyLast']").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const text = termScreen.textContent.trim().split("\n").slice(-12).join("\n");
+        try{
+          await navigator.clipboard.writeText(text);
+          toast("Copied recent output");
+        }catch{
+          toast("Clipboard blocked by browser");
+        }
+      });
+    });
+
+    // ---------------------------
+    // Terminal logic
+    // ---------------------------
+    const termScreen = $("#termScreen");
+    const termInput = $("#termInput");
+
+    function termPrint(text){
+      termScreen.textContent += text;
+      termScreen.scrollTop = termScreen.scrollHeight;
+    }
+
+    const banner =
+`MindOS Terminal — type a command
+--------------------------------
+Type: help
+`;
+    termPrint(banner);
+
+    const commands = {
+      help(){
+        return `
+Commands:
+  help                show this help
+  about               who am I (short)
+  skills              show skills
+  projects            list projects
+  open projects       bring Projects window to front
+  open memory         open Memory Core window
+  clear               clear terminal
+  theme               toggle accent mood
+
+Tips:
+  - This demo is one HTML file.
+  - You can expand it into a real portfolio with routes, APIs, and auth.
+`;
+      },
+      about(){
+        return `
+About:
+  I build systems that feel clean, fast, and fun.
+  I mix engineering logic + creative UI to make products memorable.
+
+  Motto:
+    "Make it simple. Make it stable. Make it feel alive."
+`;
+      },
+      skills(){
+        return `
+Skills:
+  ✔ JavaScript / jQuery
+  ✔ Laravel / PHP
+  ✔ DataTables + Export
+  ✔ API Design
+  ✔ Dashboard UI Systems
+  ✔ Network-ish logic (IP pool workflows)
+
+Try: projects
+`;
+      },
+      projects(){
+        const list = projects.map((p, i)=>`  [${i+1}] ${p.name} — ${p.tag}`).join("\n");
+        return `
+Projects:
+${list}
+
+Try: open projects
+`;
+      },
+      "open projects"(){
+        showWin("winProjects");
+        focusWindow("winProjects");
+        return `Opened: lab.projects`;
+      },
+      "open memory"(){
+        showWin("winMemory");
+        focusWindow("winMemory");
+        return `Opened: memory.core`;
+      },
+      clear(){
+        termScreen.textContent = "";
+        return "";
+      },
+      theme(){
+        // fun mini theme flip by swapping accent vars
+        const r = document.documentElement;
+        const current = getComputedStyle(r).getPropertyValue("--accent").trim();
+        if(current === "#7c5cff"){
+          r.style.setProperty("--accent", "#2ee9a6");
+          r.style.setProperty("--accent2", "#7c5cff");
+          return "Theme: swapped accents (mint / purple)";
+        } else {
+          r.style.setProperty("--accent", "#7c5cff");
+          r.style.setProperty("--accent2", "#2ee9a6");
+          return "Theme: default accents (purple / mint)";
+        }
+      }
+    };
+
+    function runCommand(raw){
+      const input = raw.trim().toLowerCase();
+      if(!input) return;
+
+      termPrint(`\n> ${raw}\n`);
+
+      // Match exact command first
+      if(commands[input]){
+        const out = commands[input]();
+        if(out) termPrint(out);
+        return;
+      }
+
+      // Friendly aliases
+      if(input === "proj") return runCommand("projects");
+      if(input === "mem") return runCommand("open memory");
+
+      // Unknown
+      termPrint(`Unknown command: "${raw}". Try: help\n`);
+    }
+
+    termInput.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        const v = termInput.value;
+        termInput.value = "";
+        runCommand(v);
+      }
+    });
+
+    // Start with windows focused nicely
+    focusWindow("winProjects");
+    focusWindow("winTerminal");
+  </script>
+</body>
+</html>
